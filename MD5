@@ -1,8 +1,9 @@
-15826c3b5876e925132fa422e7e6aef1 *DESCRIPTION
-58a21cd0881d4f5c3b4e7beda6cd9425 *NAMESPACE
-2241275185195382abcc061ec495dd07 *R/marginal.R
-065cd7188477fad7ed49c3df7cd9655b *build/partial.rdb
-9c651bdee97054f52a7c69a4148793d5 *man/marginal.test.Rd
+4b416f15002a43d150fa278ee2df25f8 *DESCRIPTION
+0ab29892ff147d94951c78d53a80ce88 *NAMESPACE
+aa74bf30e238e2daf7f0a8e85969f111 *R/marginal.R
+f1694c5c7144be1cb2bdbb4c1586366e *build/partial.rdb
+8ee91ce7502ce1d32cfce4c029d4ac6d *man/marginal.test.Rd
 29371507bc2c5438aeae8ce45049cf83 *man/sdat-package.Rd
-619d13ce6900fca2139e2139408d39ad *src/Makevars
-a177243b3c4c24553de5cd4e80a2a225 *src/marginal.c
+87c2fa41e643cd17febaca7af419f1f6 *src/Makevars
+fb92385d74c5171dfc78bead62993799 *src/marginal.c
+ebe9781f13c036e2899be7c2294ed0b9 *src/sdat-win.def

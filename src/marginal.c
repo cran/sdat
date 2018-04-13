@@ -1,23 +1,31 @@
-#include <Rmath.h>
+#include <math.h>
+#include <stdlib.h>
+
 #include <R.h>
+#include <Rinternals.h>
+#include <Rmath.h>
+
 #include <R_ext/BLAS.h>
 #include <R_ext/Lapack.h>
+#include <R_ext/Rdynload.h>
+#include <R_ext/Visibility.h>
+
+#define MALLOC_DOUBLE(size) (double *)malloc((size) * sizeof(double))
 
 
-
-
-void quick_sort(double *restrict vdat,
+void quick_sort(
+    double *restrict vdat,
     const int n);
 
 
-
-
-void center_matrix(double *x,
+void center_matrix(
+    double *x,
     double *restrict var_x,
     const int n,
     const int p);
 
-void get_t_statistics(const double *x,
+void get_t_statistics(
+    const double *x,
     const double *y,
     const double *restrict var_x,
     const double *restrict var_y,
@@ -27,9 +35,8 @@ void get_t_statistics(const double *x,
     const int q);
 
 
-
-
-typedef void (*aggregate_function)(const double *restrict t,
+typedef void (*aggregate_function)(
+    const double *restrict t,
     const double *restrict alpha,
     double *restrict g,
     double *temp,
@@ -37,7 +44,8 @@ typedef void (*aggregate_function)(const double *restrict t,
     const int n_alpha,
     const int inc_g);
 
-void aggregate_by_cum_sum(const double *restrict t,
+void aggregate_by_cum_sum(
+    const double *restrict t,
     const double *restrict alpha,
     double *restrict g,
     double *temp,
@@ -45,7 +53,8 @@ void aggregate_by_cum_sum(const double *restrict t,
     const int n_alpha,
     const int inc_g);
 
-void aggregate_marginals(const double *restrict t,
+void aggregate_marginals(
+    const double *restrict t,
     const double *restrict alpha,
     double *restrict g,
     aggregate_function aggregate,
@@ -54,13 +63,13 @@ void aggregate_marginals(const double *restrict t,
     const int n_alpha);
 
 
-
-
-double get_p_value(const double obs,
+double get_p_value(
+    const double obs,
     const double *restrict null,
     const int n);
 
-void detect_effect(double *restrict x,
+void detect_effect(
+    double *restrict x,
     double *restrict y,
     double *restrict alpha,
     double *restrict extreme,
@@ -71,16 +80,12 @@ void detect_effect(double *restrict x,
     const int n_sim);
 
 
-
-
 #define SWAP(j, k) \
     if (vdat[j] > vdat[k]) { \
         register double vtemp = vdat[j]; \
         vdat[j] = vdat[k]; \
         vdat[k] = vtemp; \
     }
-
-
 
 
 void swap_sort(double *restrict vdat, const int n)
@@ -178,8 +183,6 @@ void swap_sort(double *restrict vdat, const int n)
 }
 
 
-
-
 void quick_sort(double *restrict vdat, const int n)
 {
     /* sorts small arrays directly */
@@ -226,13 +229,8 @@ void quick_sort(double *restrict vdat, const int n)
 }
 
 
-
-#include <math.h>
-
-
-
-
-void center_matrix(double *x,
+void center_matrix(
+    double *x,
     double *restrict var_x,
     const int n,
     const int p)
@@ -257,9 +255,8 @@ void center_matrix(double *x,
 }
 
 
-
-
-void get_t_statistics(const double *x,
+void get_t_statistics(
+    const double *x,
     const double *y,
     const double *restrict var_x,
     const double *restrict var_y,
@@ -291,13 +288,8 @@ void get_t_statistics(const double *x,
 }
 
 
-
-#include <math.h>
-
-
-
-
-void aggregate_by_cum_sum(const double *restrict t,
+void aggregate_by_cum_sum(
+    const double *restrict t,
     const double *restrict alpha,
     double *restrict g,
     double *temp,
@@ -321,9 +313,8 @@ void aggregate_by_cum_sum(const double *restrict t,
 }
 
 
-
-
-void aggregate_marginals(const double *restrict t,
+void aggregate_marginals(
+    const double *restrict t,
     const double *restrict alpha,
     double *restrict g,
     aggregate_function aggregate,
@@ -344,12 +335,8 @@ void aggregate_marginals(const double *restrict t,
 }
 
 
-
-
-
-
-
-double get_p_value(const double obs,
+double get_p_value(
+    const double obs,
     const double *restrict null,
     const int n)
 {
@@ -374,9 +361,8 @@ double get_p_value(const double obs,
 }
 
 
-
-
-void simulate_null(const double *restrict x,
+void simulate_null(
+    const double *restrict x,
     const double *restrict var_x,
     const double *restrict alpha,
     double *restrict epsilon,
@@ -400,13 +386,6 @@ void simulate_null(const double *restrict x,
     get_t_statistics(x, epsilon, var_x, var_epsilon, t, n, p, q);
     aggregate_marginals(t, alpha, g, aggregate, p, q, n_alpha);
 }
-
-
-
-
-#define MALLOC_DOUBLE(size) (double *)malloc((size) * sizeof(double))
-
-
 
 
 void detect_effect(double *restrict x,
@@ -495,19 +474,30 @@ void detect_effect(double *restrict x,
 }
 
 
-
-
-
-
-
-void R_detect_effect(double *x, double *y, double *alpha,
-    double *extreme,
-    int *n, int *p, int *n_alpha, int *n_sim)
+SEXP R_detect_effect(
+    SEXP R_x, SEXP R_y, SEXP R_alpha, SEXP R_extreme,
+    SEXP R_n, SEXP R_p, SEXP R_num_alpha, SEXP R_num_sim)
 {
-    aggregate_function aggregate = aggregate_by_cum_sum;
-    detect_effect(x, y, alpha, extreme, aggregate,
-        *n, *p, *n_alpha, *n_sim);
+    detect_effect(
+	    REAL(R_x), REAL(R_y), 
+		REAL(R_alpha), REAL(R_extreme), 
+		aggregate_by_cum_sum,
+        INTEGER(R_n)[0], INTEGER(R_p)[0], 
+		INTEGER(R_num_alpha)[0], INTEGER(R_num_sim)[0]);
+    return R_NilValue;
 }
 
 
+static const R_CallMethodDef g_call_methods[]  = {
+  {"R_detect_effect", (DL_FUNC)&R_detect_effect, 8},
+  {NULL, NULL, 0}
+};
+
+
+void attribute_visible R_init_sdat(DllInfo *dll)
+{
+    R_registerRoutines(dll, NULL, g_call_methods, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+    R_forceSymbols(dll, TRUE);
+}
 
